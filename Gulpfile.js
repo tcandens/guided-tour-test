@@ -62,3 +62,5 @@ gulp.task('watch', function() {
 });
 
 gulp.task('serve:dev', [ 'serve:static', 'sync', 'watch' ]);
+
+gulp.task('build', [ 'backend:build', 'webpack', 'html', 'stylus' ]);
