@@ -26,7 +26,8 @@ gulp.task('serve:static', [ 'backend:build', 'webpack', 'html' ], function() {
     script: './build/server.js'
   })
     .on('restart', function() {
-      console.log( 'gulp-nodemon restarted at ' + new Date().getTime() );
+      var t = new Date();
+      console.log( 'gulp-nodemon restarted at ' + t.getHours() + ':' + t.getMinutes() + ':' + t.getSeconds() );
     })
 });
 
@@ -49,6 +50,7 @@ gulp.task('webpack', function() {
 gulp.task('watch', function() {
   gulp.watch(['./app/public/js/**/*.js'], [ 'webpack', reload ]);
   gulp.watch(['./app/server.js'], ['backend:build']);
+  gulp.watch(['./app/public/**/*.html'], ['html', reload ])
 });
 
 gulp.task('serve:dev', [ 'serve:static', 'sync', 'watch' ]);
