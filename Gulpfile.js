@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var webpack = require('webpack-stream');
 var del = require('del');
 var nodemon = require('gulp-nodemon');
+var stylus = require('gulp-stylus');
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 
@@ -21,7 +22,13 @@ gulp.task('html', function() {
     .pipe(gulp.dest( './build/public' ));
 });
 
-gulp.task('serve:static', [ 'backend:build', 'webpack', 'html' ], function() {
+gulp.task('stylus', function() {
+  gulp.src([ './app/public/stylus/master.styl' ])
+    .pipe( stylus() )
+    .pipe( gulp.dest('./build/public/css/'))
+})
+
+gulp.task('serve:static', [ 'backend:build', 'webpack', 'html', 'stylus' ], function() {
   nodemon({
     script: './build/server.js'
   })
@@ -51,6 +58,7 @@ gulp.task('watch', function() {
   gulp.watch(['./app/public/js/**/*.js'], [ 'webpack', reload ]);
   gulp.watch(['./app/server.js'], ['backend:build']);
   gulp.watch(['./app/public/**/*.html'], ['html', reload ])
+  gulp.watch(['./app/public/stylus/**/*.styl'], ['stylus', reload ])
 });
 
 gulp.task('serve:dev', [ 'serve:static', 'sync', 'watch' ]);
