@@ -54,8 +54,8 @@ function geolocate( callback ) {
 
 function launchMap() {
   geolocate(function( position ) {
-    initializeMap( position, function( map ) {
-      moveCenter( position, map );
+    initializeMap( position, function( newPosition, map ) {
+      moveCenter( newPosition, map );
     });
   });
 }
