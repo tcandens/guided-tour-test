@@ -47,16 +47,14 @@ function geolocate( callback ) {
   }
 }
 
-function isNearCoffee( position, callback ) {
-  function _distance( x1, x2, y1, y2 ) {
-    var deltaX = x2 - x1;
-    var deltaY = y2 - y1;
-    var hyp = Math.sqrt( ( deltaX * deltaX ) + ( deltaY * deltaY ) );
-    return Math.abs( hyp );
-  }
+var coffee = {
+  latitude: 47.624094,
+  longitude: -122.336750
+}
 
+function isNearCoffee( position, callback ) {
   var distance = geolib.getDistance(
-    { latitude: 47.624094, longitude: -122.336750 },
+    { latitude: coffee.latitude, longitude: coffee.longitude },
     { latitude: position.latitude, longitude: position.longitude }
   )
 
@@ -72,6 +70,9 @@ function launchMap() {
   geolocate(function( position ) {
     initializeMap( position, function( map, position ) {
       isNearCoffee( position );
+      L.circle([ coffee.latitude, coffee.longitude ], 5, {
+        color: 'red',
+      }).addTo( map );
       addMarker( map, position, function( map ) {
         navigator.geolocation.watchPosition(function( position ) {
           addMarker( map, position );
