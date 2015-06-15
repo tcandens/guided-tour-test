@@ -11,34 +11,28 @@ function loadScript( url ) {
 };
 
 function initializeMap( position, callback ) {
-  var options = {
-    zoom: 20,
-    center: new google.maps.LatLng( position.latitude, position.longitude )
-  };
-  map = new google.maps.Map( document.getElementById('map-canvas'), options );
-  var startMarker = new google.maps.Marker({
-    position: new google.maps.LatLng( position.latitude, position.longitude ),
-    map: map,
-    title: 'Start'
+  var map = L.map('map-canvas', {
+    center: [ position.latitude, position.longitude ],
+    zoom: 19
   });
-  if ( typeof( callback ) === 'function' ) {
-    callback( map );
-  }
+  L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data',
+    maxZoom: 19
+  }).addTo( map );
+  callback( map, position );
 }
 
-function moveCenter( position, map ) {
-  var newCenter = new google.maps.LatLng( position.latitude, position.longitude );
-  map.setCenter( newCenter );
-  var newMarker = new google.maps.Marker({
-    position: newCenter,
-    map: map,
-    title: position.latitude + '-' + position.longitude
-  });
+function addMarker( map, position, callback ) {
+  L.marker([ position.latitude, position.longitude ], {
+    title: 'You started here'
+  }).addTo( map );
+  if ( typeof callback === 'function' )
+    callback( map );
 }
 
 function geolocate( callback ) {
   if ( navigator.geolocation ) {
-    navigator.geolocation.watchPosition(function( position ) {
+    navigator.geolocation.getCurrentPosition(function( position ) {
       if ( typeof( callback ) === 'function' ) {
         callback( position.coords );
         console.log( 'callback fired in geolocate' );
@@ -52,17 +46,39 @@ function geolocate( callback ) {
   }
 }
 
+function isNearCoffee( position, callback ) {
+  function _distance( x1, x2, y1, y2 ) {
+    var deltaX = x2 - x1;
+    var deltaY = y2 - y1;
+    var hyp = Math.sqrt( ( deltaX * deltaX ) + ( deltaY * deltaY ) );
+    return Math.abs( hyp );
+  }
+
+  if ( _distance( position.latitude, 47.624094, position.longitude, -122.336750) < 0.0001 ) {
+    window.alert( 'Coffee!' );
+  }
+  console.log( _distance( position.latitude, 47.624094, position.longitude, -122.336750));
+}
+
 function launchMap() {
   geolocate(function( position ) {
-    initializeMap( position, function( newPosition, map ) {
-      moveCenter( newPosition, map );
+    initializeMap( position, function( map, position ) {
+      isNearCoffee( position );
+      addMarker( map, position, function( map ) {
+        navigator.geolocation.watchPosition(function( position ) {
+          addMarker( map, position );
+          isNearCoffee( position );
+          console.log( 'position changed!' );
+        })
+      })
     });
   });
 }
 
 window.onload = function() {
-  var url = 'https://maps.googleapis.com/maps/api/js?v=3.20&callback=APP.launchMap';
+  var url = 'http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js';
   loadScript( url );
+  launchMap();
 }
 
 window.APP = {
