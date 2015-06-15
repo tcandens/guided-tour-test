@@ -31,6 +31,15 @@ function addMarker( map, position, callback ) {
     callback( map );
 }
 
+var geoOptions = {
+  enableHighAccuracy: true,
+  maximumAge: 0
+};
+
+function handleGeoError( err ) {
+  console.log( 'Error in  ' + err);
+}
+
 function geolocate( callback ) {
   if ( navigator.geolocation ) {
     navigator.geolocation.getCurrentPosition(function( position ) {
@@ -41,15 +50,15 @@ function geolocate( callback ) {
         console.log( typeof( callback ) );
         console.log( 'No callback in geolocate' );
       }
-    });
+    }, handleGeoError, geoOptions);
   } else {
     document.write('no geolocation!');
   }
 }
 
 var coffee = {
-  latitude: 47.624094,
-  longitude: -122.336750
+  latitude: 47.623839,
+  longitude: -122.336158
 }
 
 function isNearCoffee( position, callback ) {
@@ -75,18 +84,18 @@ function launchMap() {
       }).addTo( map );
       addMarker( map, position, function( map ) {
         navigator.geolocation.watchPosition(function( position ) {
-          addMarker( map, position );
-          isNearCoffee( position );
+          addMarker( map, position.coords );
+          isNearCoffee( position.coords );
           console.log( 'position changed!' );
-        })
+        }, handleGeoError, geoOptions );
       })
     });
   });
 }
 
 window.onload = function() {
-  var url = 'http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js';
-  loadScript( url );
+  // var url = 'http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js';
+  // loadScript( url );
   launchMap();
 }
 
