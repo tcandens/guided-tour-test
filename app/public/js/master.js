@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
+var geolib = require('geolib');
 
 var map;
 
@@ -54,10 +55,17 @@ function isNearCoffee( position, callback ) {
     return Math.abs( hyp );
   }
 
-  if ( _distance( position.latitude, 47.624094, position.longitude, -122.336750) < 0.0001 ) {
-    window.alert( 'Coffee!' );
+  var distance = geolib.getDistance(
+    { latitude: 47.624094, longitude: -122.336750 },
+    { latitude: position.latitude, longitude: position.longitude }
+  )
+
+  if( distance < 5 ) {
+    window.alert( 'Here be coffee' );
   }
-  console.log( _distance( position.latitude, 47.624094, position.longitude, -122.336750));
+
+  console.log( distance );
+
 }
 
 function launchMap() {
